@@ -1,0 +1,80 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://scenes/Label.gd" type="Script" id=1]
+[ext_resource path="res://scenes/enteredHome.gd" type="Script" id=2]
+
+[node name="enteredHome" type="Control"]
+pause_mode = 2
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -6.10352e-05
+color = Color( 0, 0, 0, 0.211765 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+margin_left = 373.449
+margin_top = 278.405
+margin_right = 699.449
+margin_bottom = 340.405
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer"]
+margin_right = 326.0
+margin_bottom = 62.0
+color = Color( 0.411765, 0.45098, 0.878431, 1 )
+
+[node name="vbox" type="VBoxContainer" parent="MarginContainer"]
+margin_right = 326.0
+margin_bottom = 62.0
+mouse_filter = 0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="MarginContainer/vbox"]
+margin_right = 326.0
+margin_bottom = 14.0
+mouse_filter = 0
+custom_colors/font_color = Color( 0.101961, 0.0470588, 0.0235294, 1 )
+text = "You have reached home what would you like to do?"
+align = 1
+valign = 1
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sleep" type="Button" parent="MarginContainer/vbox"]
+margin_top = 18.0
+margin_right = 326.0
+margin_bottom = 38.0
+text = "Sleep"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="facetime" type="Button" parent="MarginContainer/vbox"]
+margin_top = 42.0
+margin_right = 326.0
+margin_bottom = 62.0
+text = "FaceTime"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="MarginContainer/vbox/Sleep" to="." method="_on_Sleep_pressed"]
+[connection signal="pressed" from="MarginContainer/vbox/facetime" to="." method="_on_facetime_pressed"]

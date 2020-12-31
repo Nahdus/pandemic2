@@ -1,0 +1,240 @@
+[gd_scene load_steps=24 format=2]
+
+[ext_resource path="res://assets/npc.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends KinematicBody2D
+
+
+enum States { IDLE, FOLLOW }
+const MASS = 10.0
+const ARRIVE_DISTANCE = 0.5
+export(float) var speed = 50.0
+var _state = null
+var itinerary
+var itinaryIndex=0
+var _path = []
+var _target_point_world = Vector2()
+var _target_position = Vector2()
+var _velocity = Vector2()
+
+
+
+func _ready():
+	var landmarks=get_parent().get_parent().get_node(\"landmarks\")
+	var home=landmarks.get_node('home').get_children()[randi()%landmarks.get_node('home').get_child_count()]
+	var restaurant=landmarks.get_node('restaurant').get_children()[randi()%landmarks.get_node('restaurant').get_child_count()]
+	var office=landmarks.get_node('office').get_children()[randi()%landmarks.get_node('office').get_child_count()]
+	itinerary=[home,restaurant,office]
+	print(len(itinerary))
+	_target_position=itinerary[itinaryIndex].position
+	_change_state(States.FOLLOW)
+
+func _process(_delta):
+	if _state != States.FOLLOW:
+		return
+	var _arrived_to_next_point = _move_to(_target_point_world)
+	if _arrived_to_next_point:
+		_path.remove(0)
+		if len(_path) == 0:
+			print('landed on '+ str(position))
+			_change_state(States.IDLE)
+			itinaryIndex=_incItinaryIndex()
+			wait_move_next(itinaryIndex)
+			return
+		_target_point_world = _path[0]
+
+func _physics_process(delta):
+	var velocity = Vector2()
+	var _collision_info = move_and_collide(velocity * delta)
+
+func animate(velocity):
+	if(velocity.x==0):
+		if(velocity.y>speed-10):
+			$AnimatedSprite.play('towards')	
+		elif(velocity.y<-speed+10):
+			$AnimatedSprite.play('away')	
+	elif(velocity.y==0):
+		if(velocity.x>speed-10):
+			$AnimatedSprite.flip_h=false
+			$AnimatedSprite.play('walk')
+		elif(velocity.x<-speed+10):
+			$AnimatedSprite.flip_h=true
+			$AnimatedSprite.play('walk')
+
+func _move_to(world_position):
+	var desired_velocity = (world_position - position).normalized() * speed
+	var steering = desired_velocity - _velocity
+	_velocity += steering 
+	position += _velocity * get_process_delta_time()
+	animate(_velocity)
+	return position.distance_to(world_position) < ARRIVE_DISTANCE
+
+func _incItinaryIndex():
+	itinaryIndex+=1
+	if itinaryIndex>=len(itinerary):
+		itinaryIndex=0
+	else:
+		return itinaryIndex
+	return itinaryIndex
+
+
+func follow():
+	_change_state(States.FOLLOW)
+	
+func wait_move_next(itinaryIndex):
+	_target_position=itinerary[itinaryIndex].position
+	yield(get_tree().create_timer(1.0), \"timeout\")
+	follow()
+
+func _change_state(new_state):
+	if new_state == States.FOLLOW:
+		_path = get_parent().get_parent().get_node(\"roads\").get_astar_path(position, _target_position)
+		if not _path or len(_path) == 1:
+			_change_state(States.IDLE)
+			return
+		# The index 0 is the starting cell.
+		# We don't want the character to move back to it in this example.
+		_target_point_world = _path[1]
+	_state = new_state
+	$AnimatedSprite.play('idle')
+
+
+
+
+
+
+
+
+
+func _on_breatheArea_body_entered(body):
+	print('body')
+	print(body)
+"
+
+[sub_resource type="AtlasTexture" id=2]
+atlas = ExtResource( 1 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=3]
+atlas = ExtResource( 1 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=4]
+atlas = ExtResource( 1 )
+region = Rect2( 32, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=5]
+atlas = ExtResource( 1 )
+region = Rect2( 48, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 1 )
+region = Rect2( 0, 16, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=7]
+atlas = ExtResource( 1 )
+region = Rect2( 16, 16, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=8]
+atlas = ExtResource( 1 )
+region = Rect2( 32, 16, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=9]
+atlas = ExtResource( 1 )
+region = Rect2( 48, 16, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=10]
+atlas = ExtResource( 1 )
+region = Rect2( 64, 16, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=11]
+atlas = ExtResource( 1 )
+region = Rect2( 0, 48, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=12]
+atlas = ExtResource( 1 )
+region = Rect2( 16, 48, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=13]
+atlas = ExtResource( 1 )
+region = Rect2( 32, 48, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=14]
+atlas = ExtResource( 1 )
+region = Rect2( 48, 48, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=15]
+atlas = ExtResource( 1 )
+region = Rect2( 0, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=16]
+atlas = ExtResource( 1 )
+region = Rect2( 16, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=17]
+atlas = ExtResource( 1 )
+region = Rect2( 32, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=18]
+atlas = ExtResource( 1 )
+region = Rect2( 48, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=19]
+atlas = ExtResource( 1 )
+region = Rect2( 64, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=20]
+atlas = ExtResource( 1 )
+region = Rect2( 80, 32, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=21]
+animations = [ {
+"frames": [ SubResource( 2 ), SubResource( 3 ), SubResource( 4 ), SubResource( 5 ) ],
+"loop": true,
+"name": "idle",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 6 ), SubResource( 7 ), SubResource( 8 ), SubResource( 9 ), SubResource( 10 ) ],
+"loop": true,
+"name": "walk",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 11 ), SubResource( 12 ), SubResource( 13 ), SubResource( 14 ) ],
+"loop": true,
+"name": "away",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 15 ), SubResource( 16 ), SubResource( 17 ), SubResource( 18 ), SubResource( 19 ), SubResource( 20 ) ],
+"loop": true,
+"name": "towards",
+"speed": 5.0
+} ]
+
+[sub_resource type="RectangleShape2D" id=22]
+extents = Vector2( 22, 24.645 )
+
+[node name="NPC" type="KinematicBody2D"]
+position = Vector2( 490, 328.645 )
+collision_layer = 2
+collision_mask = 4
+script = SubResource( 1 )
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+frames = SubResource( 21 )
+animation = "idle"
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PoolVector2Array( 0, -8, -8, 0, 0, 8, 8, 0 )
+one_way_collision_margin = 50.7
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+
+[node name="breatheArea" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 33
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="breatheArea"]
+shape = SubResource( 22 )
+[connection signal="body_entered" from="breatheArea" to="." method="_on_breatheArea_body_entered"]
